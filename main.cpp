@@ -6,11 +6,70 @@
 
 class Intel4004 {
 public:
-    Intel4004(): pc(0), acc(0), rr0(0), rr1(0), flags(0) {
+    struct PointerCounter {
+        uint pc : 12;
+    };
+    struct Registers {
+        uint rr0 : 4;
+        uint rr1 : 4;
+        uint rr2 : 4;
+        uint rr3 : 4;
+        uint rr4 : 4;
+        uint rr5 : 4;
+        uint rr6 : 4;
+        uint rr7 : 4;
+        uint rr8 : 4;
+        uint rr9 : 4;
+        uint rr10 : 4;
+        uint rr11 : 4;
+        uint rr12 : 4;
+        uint rr13 : 4;
+        uint rr14 : 4;
+        uint rr15 : 4;
+    };
+    struct Accumulator {
+        uint ac : 4;
+    };
+    struct Flag {
+        bool carry = false;
+        bool parity = false;
+        bool zero = false;
+    };
+    
+    struct Temporary { // Вспомогательная переменная не относящаяся к Intel 4004;
+        uint temp : 4;
+    };
+    
+    Registers r; Accumulator a; PointerCounter p; Flag f; Temporary t;
+    
+    Intel4004() {
         memory.resize(256);
+        
+        r.rr0 = 0;
+        r.rr1 = 0;
+        r.rr2 = 0;
+        r.rr3 = 0;
+        r.rr4 = 0;
+        r.rr5 = 0;
+        r.rr6 = 0;
+        r.rr7 = 0;
+        r.rr8 = 0;
+        r.rr9 = 0;
+        r.rr10 = 0;
+        r.rr11 = 0;
+        r.rr12 = 0;
+        r.rr13 = 0;
+        r.rr14 = 0;
+        r.rr15 = 0;
+        
+        a.ac = 0;
+        
+        p.pc = 0;
     }
     
     void load_program(std::vector<uint8_t> instructions) {
+        this->instructions_size = instructions.size();
+        this->memory_size = memory.size();
         for (size_t i = 0; i < memory.size(); i++) {
             memory[i] = instructions[i];
         }
@@ -23,46 +82,224 @@ public:
     // Auxiliary methods
     
     uint8_t get_acc() {
-        return acc;
+        return a.ac;
     }
     
     uint8_t get_rr0() {
-        return rr0;
+        return r.rr0;
     }
     
     uint8_t get_rr1() {
-        return rr1;
+        return r.rr0;
+    }
+    
+    uint8_t get_rr2() {
+        return r.rr2;
+    }
+    
+    uint8_t get_rr3() {
+        return r.rr3;
+    }
+    
+    uint8_t get_rr4() {
+        return r.rr4;
+    }
+    
+    uint8_t get_rr5() {
+        return r.rr5;
+    }
+    
+    uint8_t get_rr6() {
+        return r.rr6;
+    }
+    
+    uint8_t get_rr7() {
+        return r.rr7;
+    }
+    
+    uint8_t get_rr8() {
+        return r.rr8;
+    }
+    
+    uint8_t get_rr9() {
+        return r.rr9;
+    }
+    
+    uint8_t get_rr10() {
+        return r.rr10;
+    }
+    
+    uint8_t get_rr11() {
+        return r.rr11;
+    }
+    
+    uint8_t get_rr12() {
+        return r.rr12;
+    }
+    
+    uint8_t get_rr13() {
+        return r.rr13;
+    }
+    
+    uint8_t get_rr14() {
+        return r.rr14;
+    }
+    
+    uint8_t get_rr15() {
+        return r.rr15;
+    }
+    
+    uint get_memory() {
+        for(size_t i = 0; i < memory.size(); i++) {
+            if ((i + 1) % 10 == 0) {
+                std::cout << std::endl;
+            } else {
+                if (memory[i] != 0) {
+                    std::cout << static_cast<int>(1);
+                    std::cout << " ";
+                } else if (memory[i] == 0)  {
+                    std::cout << static_cast<int>(0);
+                    std::cout << " ";
+                }
+            }
+        }
+        std::cout << std::endl;
+        std::cout << "FREE_MEMORY - " << memory_size - instructions_size;
+        std::cout << std::endl;
+        std::cout << "USING_MEMORY - " << instructions_size;
+        std::cout << std::endl;
+        return 0;
     }
     
     //
     
     void run() {
         while (true) {
-            uint8_t opcode = memory[pc++];
+            uint8_t opcode = memory[p.pc++];
+            
             switch (opcode) {
                 case NOP: // Остановка
                     return;
                 case LDM: // Загружаем число в аккум
-                    acc = memory[pc++];
+                    a.ac = memory[p.pc++];
                     break;
-                case XCH_RR0: // Загружаем число в регистер 0 из аккума
-                    std::swap(acc, rr0);
-                    break;
-                case XCH_RR1: // Загружаем число в регистер 1 из аккума
-                    std::swap(acc, rr1);
+                case XCH: // Загружаем число в регистер 0 из аккума
+                    if (memory[p.pc] == RR0) {
+                        t.temp = r.rr0;
+                        r.rr0 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR1) {
+                        t.temp = r.rr1;
+                        r.rr1 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR2) {
+                        t.temp = r.rr2;
+                        r.rr2 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR2) {
+                        t.temp = r.rr2;
+                        r.rr2 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR3) {
+                        t.temp = r.rr3;
+                        r.rr3 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR4) {
+                        t.temp = r.rr4;
+                        r.rr4 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR5) {
+                        t.temp = r.rr5;
+                        r.rr5 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR6) {
+                        t.temp = r.rr6;
+                        r.rr6 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR7) {
+                        t.temp = r.rr7;
+                        r.rr7 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR8) {
+                        t.temp = r.rr8;
+                        r.rr8 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR9) {
+                        t.temp = r.rr9;
+                        r.rr9 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR10) {
+                        t.temp = r.rr10;
+                        r.rr10 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR11) {
+                        t.temp = r.rr11;
+                        r.rr11 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR12) {
+                        t.temp = r.rr12;
+                        r.rr12 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR13) {
+                        t.temp = r.rr13;
+                        r.rr13 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR14) {
+                        t.temp = r.rr14;
+                        r.rr14 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    } else if (memory[p.pc] == RR15) {
+                        t.temp = r.rr15;
+                        r.rr15 = a.ac;
+                        a.ac = t.temp;
+                        
+                        t.temp = 0;
+                    }
+                    p.pc++;
                     break;
                 case ADD: // Сложение
-                    if (acc + rr0 > 15) {
-                        acc = acc + rr0 & 0x0F;
-                        flags |= 0x01; // Устанавливаем флаг переноса
+                    if (a.ac + r.rr0 > 15) {
+                        a.ac = a.ac + r.rr0;
+                        f.carry = true; // Устанавливаем флаг переноса
                     } else {
-                        acc += rr0;
-                        flags &= ~0x01; // Сбрасываем флаг переноса
+                        a.ac += r.rr0;
+                        f.carry = false; // Сбрасываем флаг переноса
                     }
                     break;
                 case SUB: // Вычитание
-                    acc -= rr0;
-                    acc &= 0x0F;
+                    a.ac -= r.rr0;
                     break;
                 default:
                     std::cerr << "Unknown instruction!" << std::endl;
@@ -73,10 +310,8 @@ public:
     }
     
 private:
-    uint8_t pc;
-    uint8_t rr0, rr1;
-    uint8_t acc;
-    uint8_t flags;
+    size_t instructions_size;
+    size_t memory_size;
     std::vector<uint8_t> memory;
 };
 
@@ -84,8 +319,8 @@ int main() {
     Intel4004 ex;
     
     std::vector<uint8_t> instructions {
-        LDM, 0x07,
-        XCH_RR0,
+        LDM, 0x01,
+        XCH, RR7,
         LDM, 0x09,
         SUB, NOP
     };
@@ -94,7 +329,7 @@ int main() {
     
     ex.run();
     
-    std::cout << static_cast<int>(ex.get_acc()) << std::endl;
+    std::cout << static_cast<int>(ex.get_rr7()) << std::endl;
     
     return 0;
     
