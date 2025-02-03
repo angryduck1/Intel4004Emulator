@@ -243,7 +243,7 @@ public:
                 case LDM: // Загружаем число в аккум
                     a.ac = memory[p.pc++];
                     break;
-                case XCH: // Загружаем число в регистер 0 из аккума
+                case XCH:
                     if (memory[p.pc] == RR0) {
                         t.temp = r.rr0;
                         r.rr0 = a.ac;
