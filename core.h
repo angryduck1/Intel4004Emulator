@@ -178,7 +178,7 @@ public:
     
     uint get_memory() {
         for(size_t i = 0; i < memory.size(); i++) {
-            if ((i + 1) % 10 == 0) {
+            if ((i + 1) % 14 == 0) {
                 std::cout << std::endl;
             } else {
                 if (memory[i] != 0) {
@@ -404,6 +404,66 @@ public:
                     t.temp = 0;
                     t.tempac = 0;
                     
+                    p.pc++;
+                    break;
+                case INC: // Добавляем 1 к выбранному регистру
+                    if (memory[p.pc] == RR0) {
+                        t.temp = r.rr0;
+                        r.rr0 ++;
+                    } else if (memory[p.pc] == RR1) {
+                        t.temp = r.rr1;
+                        r.rr1 ++;
+                    } else if (memory[p.pc] == RR2) {
+                        t.temp = r.rr2;
+                        r.rr2 ++;
+                    } else if (memory[p.pc] == RR3) {
+                        t.temp = r.rr3;
+                        r.rr3 ++;
+                    } else if (memory[p.pc] == RR4) {
+                        t.temp = r.rr4;
+                        r.rr4 ++;
+                    } else if (memory[p.pc] == RR5) {
+                        t.temp = r.rr5;
+                        r.rr5 ++;
+                    } else if (memory[p.pc] == RR6) {
+                        t.temp = r.rr6;
+                        r.rr6 ++;
+                    } else if (memory[p.pc] == RR7) {
+                        t.temp = r.rr7;
+                        r.rr7 ++;
+                    } else if (memory[p.pc] == RR8) {
+                        t.temp = r.rr8;
+                        r.rr8 ++;
+                    } else if (memory[p.pc] == RR9) {
+                        t.temp = r.rr9;
+                        r.rr9 ++;
+                    } else if (memory[p.pc] == RR10) {
+                        t.temp = r.rr10;
+                        r.rr10 ++;
+                    } else if (memory[p.pc] == RR11) {
+                        t.temp = r.rr11;
+                        r.rr11 ++;
+                    } else if (memory[p.pc] == RR12) {
+                        t.temp = r.rr12;
+                        r.rr12 ++;
+                    } else if (memory[p.pc] == RR13) {
+                        t.temp = r.rr13;
+                        r.rr13 ++;
+                    } else if (memory[p.pc] == RR14) {
+                        t.temp = r.rr14;
+                        r.rr14 ++;
+                    } else if (memory[p.pc] == RR15) {
+                        t.temp = r.rr5;
+                        r.rr15 ++;
+                    }
+                    
+                    if (t.temp + 1 > 15) {
+                        f.carry = true;
+                    } else {
+                        f.carry = false;
+                    }
+                    t.temp = 0;
+           
                     p.pc++;
                     break;
                 case SUB: // Вычитание
