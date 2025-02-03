@@ -10,7 +10,7 @@ int main() {
     
     std::vector<uint8_t> instructions {
         LDM, 7, XCH, RR0,
-        LDM, 8,
+        LDM, 1,
         ADD, RR0
     };
     
