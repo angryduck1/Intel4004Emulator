@@ -2,4 +2,4 @@
 
 Simple Intel4004 Emulator
 
-I will support development him.
+Now support ASM command, Auxiliary methods and more another
