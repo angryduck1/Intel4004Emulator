@@ -2,4 +2,4 @@
 
 Simple Intel4004 Emulator
 
-Now support ASM command, Auxiliary methods and more another
+Now support ASM command, Auxiliary methods, Carry flag, Pin command and more another
