@@ -6,8 +6,25 @@
 #include <chrono>
 #include <thread>
 #include "assembler.h"
+#include <unordered_map>
+#include <sstream>
 
 class Intel4004 {
+private:
+    size_t instructions_size;
+    size_t memory_size;
+    std::vector<uint8_t> memory;
+    
+    std::unordered_map<std::string, Opcode> opcode_map {
+        {"NOP", NOP}, {"LDM", LDM}, {"XCH", XCH}, {"ADD", ADD},
+            {"INC", INC}, {"JCN", JCN}, {"SUB", SUB}, {"RR0", RR0},
+            {"RR1", RR1}, {"RR2", RR2}, {"RR3", RR3}, {"RR4", RR4},
+            {"RR5", RR5}, {"RR6", RR6}, {"RR7", RR7}, {"RR8", RR8},
+            {"RR9", RR9}, {"RR10", RR10}, {"RR11", RR11}, {"RR12", RR12},
+            {"RR13", RR13}, {"RR14", RR14}, {"RR15", RR15}, {"C1", C1},
+            {"C2", C2}, {"C3", C3}, {"C4", C4}
+        
+    };
 public:
     struct PointerCounter {
         uint pc : 12;
@@ -112,7 +129,7 @@ public:
     
     uint8_t get_rr1() {
         std::cout << static_cast<int>(r.rr1) << std::endl;
-        return r.rr0;
+        return r.rr1;
     }
     
     uint8_t get_rr2() {
@@ -183,6 +200,22 @@ public:
     uint8_t get_rr15() {
         std::cout << static_cast<int>(r.rr15) << std::endl;
         return r.rr15;
+    }
+    
+    std::vector<uint8_t> assemble(const std::string & asm_code) {
+        std::vector<uint8_t> instructions;
+        std::istringstream stream(asm_code);
+        std::string token;
+        
+        while (stream >> token) {
+            if (opcode_map.find(token) != opcode_map.end()) {
+                instructions.push_back(opcode_map[token]);
+            } else {
+                instructions.push_back(static_cast<uint8_t>(std::stoi(token)));
+            }
+        }
+        
+        return instructions;
     }
     
     
@@ -573,10 +606,6 @@ public:
         }
     }
     
-private:
-    size_t instructions_size;
-    size_t memory_size;
-    std::vector<uint8_t> memory;
 };
 
 #endif /* core_h */
