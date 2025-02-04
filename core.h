@@ -42,7 +42,19 @@ public:
         uint8_t tempac : 4;
     };
     
-    Registers r; Accumulator a; PointerCounter p; Flag f; Temporary t;
+    struct Condition { // Вспомогательная переменная не относящаяся к Intel 4004;
+        bool c1;
+        bool c2;
+        bool c3;
+        bool c4;
+        
+        bool shouldJump;
+        
+        uint8_t condition;
+        uint address : 12;
+    };
+    
+    Registers r; Accumulator a; PointerCounter p; Flag f; Temporary t; Condition c;
     
     Intel4004() {
         memory.resize(256);
@@ -243,7 +255,7 @@ public:
                 case LDM: // Загружаем число в аккум
                     a.ac = memory[p.pc++];
                     break;
-                case XCH:
+                case XCH: // Загружаем число в регистер 0 из аккума
                     if (memory[p.pc] == RR0) {
                         t.temp = r.rr0;
                         r.rr0 = a.ac;
@@ -465,6 +477,33 @@ public:
                     t.temp = 0;
            
                     p.pc++;
+                    break;
+                case JCN:
+                    c.condition = memory[p.pc++];
+                    c.address = memory[p.pc++];
+                    
+                    c.shouldJump = false;
+                    
+                    if (c.condition == C1) {
+                        if (f.carry == true) {
+                            c.shouldJump = true;
+                        }
+                    } else if (c.condition == C2) {
+                        if (a.ac == 0) {
+                            c.shouldJump = true;
+                        }
+                    } else if (c.condition == C3) {
+                        if ((a.ac & 0b1000) != 0) {
+                            c.shouldJump = true;
+                        }
+                    } else if (c.condition == C4) {
+                        c.shouldJump = !(f.carry || (a.ac == 0) || ((a.ac & 0b1000) != 0));
+                    }
+                    
+                    if (c.shouldJump) {
+                        p.pc = c.address - 1;
+                    }
+                    
                     break;
                 case SUB: // Вычитание
                     t.tempac = a.ac;
