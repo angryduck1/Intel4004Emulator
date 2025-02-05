@@ -1,8 +1,25 @@
-# Intel4004Emulator
+# Intel 4004 Emulator
 
-Simple Intel4004 Emulator
+## Simple Intel 4004 Emulator
 
-1) Put path to your ASM code in main.cpp
-2) Compile main.cpp
+1. **Set the path** to your ASM code in `main.cpp`.
+2. **Compile** `main.cpp`.
 
-Now support ASM command, Auxiliary methods, Carry flag, Pin command and more another
+### Implemented Instructions
+
+| **Instruction** |
+|-----------------|
+| **NOP**         |
+| **LDM**         |
+| **ADD**         |
+| **SUB**         |
+| **INC**         |
+| **CMC**         |
+| **XCH**         |
+| **JCN**         |
+
+### Features
+
+- All 15 registers
+- Accumulator
+- Carry flag
