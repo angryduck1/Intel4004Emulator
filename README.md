@@ -2,6 +2,8 @@
 
 ## Simple Intel 4004 Emulator
 
+A basic emulator for the Intel 4004 microprocessor, supporting essential assembly commands.
+
 1. **Set the path** to your ASM code in `main.cpp`.
 2. **Compile** `main.cpp`.
 
@@ -23,3 +25,8 @@
 - All 15 registers
 - Accumulator
 - Carry flag
+
+### Additionally
+
+Full description assembler commands view in `assembler.h`
+
