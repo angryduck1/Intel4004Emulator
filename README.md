@@ -19,6 +19,8 @@ A basic emulator for the Intel 4004 microprocessor, supporting essential assembl
 | **CMC**         |
 | **XCH**         |
 | **JCN**         |
+| **RAL**         |
+| **RAR**         |
 
 ### Features
 
