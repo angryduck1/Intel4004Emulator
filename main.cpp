@@ -9,14 +9,20 @@
 int main() {
     Intel4004 ex;
     
-    std::ifstream inFile("main.txt"); // Put your file in this
+    std::ifstream inFile("main.txt"); // Put your file here
     
     std::string line;
     std::string asm_code;
 
     while (std::getline(inFile, line)) {
+        auto comment_pos = line.find(";");
+        if (comment_pos != std::string::npos) {
+            line = line.substr(0, comment_pos);
+            asm_code += line + "\n";
+        } else {
             asm_code += line + "\n";
         }
+    }
     
     inFile.close();
     
