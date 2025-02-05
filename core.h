@@ -16,7 +16,8 @@ private:
     std::vector<uint8_t> memory;
     
     std::unordered_map<std::string, Opcode> opcode_map {
-        {"NOP", NOP}, {"LDM", LDM}, {"XCH", XCH}, {"ADD", ADD},
+            {"NOP", NOP}, {"LDM", LDM}, {"XCH", XCH}, {"ADD", ADD},
+            {"CMC", CMC},
             {"INC", INC}, {"JCN", JCN}, {"SUB", SUB}, {"RR0", RR0},
             {"RR1", RR1}, {"RR2", RR2}, {"RR3", RR3}, {"RR4", RR4},
             {"RR5", RR5}, {"RR6", RR6}, {"RR7", RR7}, {"RR8", RR8},
@@ -597,6 +598,15 @@ public:
                     }
                     t.temp = 0;
                     p.pc++;
+                    
+                    break;
+                case CMC: // Инвертируем флаг переноса
+                    if (f.carry == true) {
+                        f.carry = false;
+                    } else if (f.carry == false) {
+                        f.carry = true;
+                    }
+                    
                     break;
                 default:
                     std::cerr << "Unknown instruction!" << std::endl;
