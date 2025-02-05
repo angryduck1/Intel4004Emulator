@@ -17,7 +17,7 @@ private:
     
     std::unordered_map<std::string, Opcode> opcode_map {
             {"NOP", NOP}, {"LDM", LDM}, {"XCH", XCH}, {"ADD", ADD},
-            {"CMC", CMC},
+            {"CMC", CMC}, {"RAL", RAL}, {"RAR", RAR},
             {"INC", INC}, {"JCN", JCN}, {"SUB", SUB}, {"RR0", RR0},
             {"RR1", RR1}, {"RR2", RR2}, {"RR3", RR3}, {"RR4", RR4},
             {"RR5", RR5}, {"RR6", RR6}, {"RR7", RR7}, {"RR8", RR8},
@@ -60,7 +60,7 @@ public:
         uint8_t tempac : 4;
     };
     
-    struct Condition { // Вспомогательная переменная не относящаяся к Intel 4004;
+    struct Condition {
         bool c1;
         bool c2;
         bool c3;
@@ -72,7 +72,12 @@ public:
         uint address : 12;
     };
     
-    Registers r; Accumulator a; PointerCounter p; Flag f; Temporary t; Condition c;
+    struct BitsControll {
+        bool lsb; // Младший бит
+        bool msb; // Старший бит
+    };
+    
+    Registers r; Accumulator a; PointerCounter p; Flag f; Temporary t; Condition c; BitsControll b;
     
     Intel4004() {
         memory.resize(256);
@@ -607,6 +612,26 @@ public:
                         f.carry = true;
                     }
                     
+                    break;
+                case RAL: // Сдвиг влево с переносом у аккумулятора
+                    b.msb = (a.ac & 0b1000) != 0;
+                    f.carry = b.msb;
+                    a.ac <<= 1;
+                    
+                    b.lsb = (f.carry & 0b0001) != 0;
+                    a.ac |= b.lsb;
+                    
+                    break; 
+                case RAR: // Сдвиг вправо с переносом у аккумулятора
+                    b.lsb = (a.ac & 0b0001) != 0;
+                    f.carry = b.lsb;
+                    a.ac >>= 1;
+                    
+                    if (f.carry) {
+                        a.ac |= 0b1000;
+                    } else {
+                        a.ac &= 0b0111;
+                    }
                     break;
                 default:
                     std::cerr << "Unknown instruction!" << std::endl;
