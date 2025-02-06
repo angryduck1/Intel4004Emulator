@@ -1,7 +1,5 @@
 # Intel 4004 Emulator
 
-## Simple Intel 4004 Emulator
-
 A basic emulator for the Intel 4004 microprocessor, supporting essential assembly commands.
 
 1. **Set the path** to your ASM code in `main.cpp`.
