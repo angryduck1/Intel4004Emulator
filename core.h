@@ -27,6 +27,11 @@ private:
         
     };
 public:
+    std::unordered_map<std::string, uint16_t> labelMap;
+    std::unordered_map<uint, uint> instruction_addresses;
+    uint counter_r = 0;
+    uint counter_u = 0;
+    
     struct PointerCounter {
         uint pc : 12;
     };
@@ -69,7 +74,7 @@ public:
         bool shouldJump;
         
         uint8_t condition;
-        uint address : 12;
+        uint address;
     };
     
     struct BitsControll {
@@ -219,38 +224,34 @@ public:
             } else {
                 instructions.push_back(static_cast<uint8_t>(std::stoi(token)));
             }
+            
+            if (token == "NOP" || token == "RAL" ||  token == "RAR" ||  token == "CMC" || token == "CMC") {
+                ++counter_r;
+                instruction_addresses[++counter_u] = counter_r;
+            } else if (token == "JCN") {
+                ++counter_r;
+                instruction_addresses[++counter_u] = counter_r;
+                ++counter_r;
+                ++counter_r;
+            } else {
+                ++counter_r;
+                instruction_addresses[++counter_u] = counter_r;
+                ++counter_r;
+            }
+            
         }
-        
         return instructions;
     }
     
     
-    ///
     
     uint get_memory() {
-        for(size_t i = 0; i < memory.size(); i++) {
-            if ((i + 1) % 14 == 0) {
-                std::cout << std::endl;
-            } else {
-                if (memory[i] != 0) {
-                    std::cout << static_cast<int>(1);
-                    std::cout << " ";
-                } else if (memory[i] == 0)  {
-                    std::cout << static_cast<int>(0);
-                    std::cout << " ";
-                }
-            }
-        }
-        std::cout << std::endl;
         std::cout << "FREE_MEMORY - " << memory_size - instructions_size;
         std::cout << std::endl;
         std::cout << "USING_MEMORY - " << instructions_size;
         std::cout << std::endl;
         return 0;
     }
-    
-    //
-    
     
     // Pin command
     
@@ -519,7 +520,7 @@ public:
                     break;
                 case JCN:
                     c.condition = memory[p.pc++];
-                    c.address = memory[p.pc++];
+                    c.address = instruction_addresses[memory[p.pc++]];
                     
                     c.shouldJump = false;
                     
