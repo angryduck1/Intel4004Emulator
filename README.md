@@ -27,6 +27,7 @@ A basic emulator for the Intel 4004 microprocessor, supporting essential assembl
 - All 15 registers
 - Accumulator
 - Carry flag
+- Normalized addresses
 
 ### Additionally
 
