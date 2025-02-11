@@ -13,11 +13,12 @@ class Intel4004 {
 private:
     size_t instructions_size;
     size_t memory_size;
-    std::vector<uint8_t> memory;
+    std::vector<uint16_t> memory;
     
     std::unordered_map<std::string, Opcode> opcode_map {
             {"NOP", NOP}, {"LDM", LDM}, {"XCH", XCH}, {"ADD", ADD},
-            {"CMC", CMC}, {"RAL", RAL}, {"RAR", RAR},
+            {"CMC", CMC}, {"RAL", RAL}, {"RAR", RAR}, {"IAC", IAC},
+            {"DAC", DAC}, {"CMA", CMA},
             {"INC", INC}, {"JCN", JCN}, {"SUB", SUB}, {"RR0", RR0},
             {"RR1", RR1}, {"RR2", RR2}, {"RR3", RR3}, {"RR4", RR4},
             {"RR5", RR5}, {"RR6", RR6}, {"RR7", RR7}, {"RR8", RR8},
@@ -31,9 +32,10 @@ public:
     std::unordered_map<uint, uint> instruction_addresses;
     uint counter_r = 0;
     uint counter_u = 0;
+    uint counter_b = 0;
     
     struct PointerCounter {
-        uint pc : 12;
+        uint pc : 16;
     };
     struct Registers {
         uint8_t rr0 : 4;
@@ -73,7 +75,7 @@ public:
         
         bool shouldJump;
         
-        uint8_t condition;
+        uint condition;
         uint address;
     };
     
@@ -225,18 +227,23 @@ public:
                 instructions.push_back(static_cast<uint8_t>(std::stoi(token)));
             }
             
-            if (token == "NOP" || token == "RAL" ||  token == "RAR" ||  token == "CMC" || token == "CMC") {
+            if (token == "NOP" || token == "RAL" ||  token == "RAR" ||  token == "CMC" || token == "CMC" || token == "IAC" || token == "DAC" || token == "CMA") {
                 ++counter_r;
                 instruction_addresses[++counter_u] = counter_r;
+                ++counter_b;
             } else if (token == "JCN") {
                 ++counter_r;
                 instruction_addresses[++counter_u] = counter_r;
                 ++counter_r;
                 ++counter_r;
+                
+                ++counter_b;
+                ++counter_b;
             } else {
                 ++counter_r;
                 instruction_addresses[++counter_u] = counter_r;
                 ++counter_r;
+                ++counter_b;
             }
             
         }
@@ -246,9 +253,9 @@ public:
     
     
     uint get_memory() {
-        std::cout << "FREE_MEMORY - " << memory_size - instructions_size;
+        std::cout << "FREE_MEMORY_IN_BYTES - " << memory_size - counter_b;
         std::cout << std::endl;
-        std::cout << "USING_MEMORY - " << instructions_size;
+        std::cout << "USING_MEMORY_IN_BYTES - " << counter_b;
         std::cout << std::endl;
         return 0;
     }
@@ -614,6 +621,10 @@ public:
                     }
                     
                     break;
+                case CMA: // Инвертируем биты в аккумуляторе
+                    a.ac = ~a.ac;
+                    
+                    break;
                 case RAL: // Сдвиг влево с переносом у аккумулятора
                     b.msb = (a.ac & 0b1000) != 0;
                     f.carry = b.msb;
@@ -633,6 +644,30 @@ public:
                     } else {
                         a.ac &= 0b0111;
                     }
+                    break;
+                case IAC:
+                    t.tempac = a.ac;
+                    a.ac++;
+                    
+                    if (t.tempac + 1 > 15) {
+                        f.carry = true;
+                    } else {
+                        f.carry = false;
+                    }
+                    
+                    t.tempac = 0;
+                    break;
+                case DAC:
+                    t.tempac = a.ac;
+                    a.ac--;
+                    
+                    if (t.tempac - 1 < 0) {
+                        f.carry = true;
+                    } else {
+                        f.carry = false;
+                    }
+                    
+                    t.tempac = 0;
                     break;
                 default:
                     std::cerr << "Unknown instruction!" << std::endl;
